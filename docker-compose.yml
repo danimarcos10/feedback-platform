@@ -28,6 +28,11 @@ services:
       SECRET_KEY: your-super-secret-key-change-in-production
       DEBUG: "true"
       CORS_ORIGINS: '["http://localhost:5173", "http://localhost:80", "http://localhost"]'
+      ADMIN_EMAIL: admin@demo.com
+      ADMIN_PASSWORD: admin1234
+      DEMO_USER_EMAIL: user@demo.com
+      DEMO_USER_PASSWORD: user1234
+      SEED_DEMO_DATA: "true"
     ports:
       - "8000:8000"
     depends_on:

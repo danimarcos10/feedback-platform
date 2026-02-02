@@ -102,6 +102,9 @@
 import { ref, onMounted, computed } from 'vue'
 import { feedbackApi } from '../api/client'
 import FeedbackList from '../components/FeedbackList.vue'
+import { useToast } from '../stores/toast'
+
+const toast = useToast()
 
 const feedback = ref([])
 const loading = ref(true)
@@ -130,6 +133,7 @@ async function loadFeedback() {
     total.value = response.data.total
   } catch (error) {
     console.error('Failed to load feedback:', error)
+    toast.error('Failed to load feedback')
   } finally {
     loading.value = false
   }
@@ -137,7 +141,7 @@ async function loadFeedback() {
 
 function openEditModal(item) {
   if (item.status === 'resolved') {
-    alert('Cannot edit resolved feedback')
+    toast.error('Cannot edit resolved feedback')
     return
   }
   editingFeedback.value = item
@@ -148,24 +152,26 @@ async function saveEdit() {
   try {
     await feedbackApi.update(editingFeedback.value.id, editForm.value)
     editingFeedback.value = null
+    toast.success('Feedback updated successfully')
     loadFeedback()
   } catch (error) {
-    alert(error.response?.data?.detail || 'Failed to update feedback')
+    toast.error(error.response?.data?.detail || 'Failed to update feedback')
   }
 }
 
 async function deleteFeedback(item) {
   if (item.status === 'resolved') {
-    alert('Cannot delete resolved feedback')
+    toast.error('Cannot delete resolved feedback')
     return
   }
   if (!confirm('Are you sure you want to delete this feedback?')) return
   
   try {
     await feedbackApi.delete(item.id)
+    toast.success('Feedback deleted successfully')
     loadFeedback()
   } catch (error) {
-    alert(error.response?.data?.detail || 'Failed to delete feedback')
+    toast.error(error.response?.data?.detail || 'Failed to delete feedback')
   }
 }
 

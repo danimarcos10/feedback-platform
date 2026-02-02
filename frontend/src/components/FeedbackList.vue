@@ -3,9 +3,17 @@
     <div v-for="item in feedback" :key="item.id" class="feedback-card card">
       <div class="feedback-header">
         <h3 class="feedback-title">{{ item.title }}</h3>
-        <span :class="['badge', `badge-${item.status}`]">
-          {{ formatStatus(item.status) }}
-        </span>
+        <div class="feedback-badges">
+          <span :class="['badge', `badge-${item.status}`]">
+            {{ formatStatus(item.status) }}
+          </span>
+          <span 
+            v-if="item.sentiment_label || item.sentiment_score !== null" 
+            :class="['badge-sentiment', `badge-sentiment-${getSentimentLabel(item)}`]"
+          >
+            {{ getSentimentIcon(item) }} {{ getSentimentLabel(item) }}
+          </span>
+        </div>
       </div>
       
       <p class="feedback-content">{{ item.content }}</p>
@@ -26,12 +34,6 @@
         <div class="meta-item">
           <span class="meta-label">Created:</span>
           <span>{{ formatDate(item.created_at) }}</span>
-        </div>
-        <div class="meta-item" v-if="item.sentiment_score !== null">
-          <span class="meta-label">Sentiment:</span>
-          <span :class="getSentimentClass(item.sentiment_score)">
-            {{ formatSentiment(item.sentiment_score) }}
-          </span>
         </div>
       </div>
 
@@ -75,16 +77,23 @@ function formatDate(date) {
   })
 }
 
-function formatSentiment(score) {
-  if (score >= 0.3) return 'Positive'
-  if (score <= -0.3) return 'Negative'
+function getSentimentLabel(item) {
+  // Use sentiment_label if available, otherwise calculate from score
+  if (item.sentiment_label) {
+    return item.sentiment_label.charAt(0).toUpperCase() + item.sentiment_label.slice(1)
+  }
+  const score = item.sentiment_score
+  if (score === null || score === undefined) return 'Unknown'
+  if (score >= 0.2) return 'Positive'
+  if (score <= -0.2) return 'Negative'
   return 'Neutral'
 }
 
-function getSentimentClass(score) {
-  if (score >= 0.3) return 'text-success'
-  if (score <= -0.3) return 'text-danger'
-  return 'text-secondary'
+function getSentimentIcon(item) {
+  const label = getSentimentLabel(item).toLowerCase()
+  if (label === 'positive') return '😊'
+  if (label === 'negative') return '😟'
+  return '😐'
 }
 
 function canEdit(item) {
@@ -113,6 +122,12 @@ function canEdit(item) {
   align-items: flex-start;
   gap: 1rem;
   margin-bottom: 0.75rem;
+}
+
+.feedback-badges {
+  display: flex;
+  gap: 0.5rem;
+  flex-shrink: 0;
 }
 
 .feedback-title {

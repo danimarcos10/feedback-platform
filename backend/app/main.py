@@ -38,13 +38,13 @@ async def global_exception_handler(request: Request, exc: Exception):
         content={"detail": f"Internal server error: {str(exc)}"}
     )
 
-# CORS middleware - allow all origins in development
-cors_origins = settings.CORS_ORIGINS
+# CORS middleware
+cors_origins = settings.CORS_ORIGINS or ["http://localhost:5173", "http://localhost", "http://localhost:80"]
 logger.info(f"CORS origins configured: {cors_origins}")
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # Allow all origins for development
+    allow_origins=cors_origins,
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -78,6 +78,17 @@ async def startup_event():
     except Exception as e:
         logger.error(f"Database connection FAILED: {e}")
         logger.error("Make sure the database is running and migrations have been applied!")
+        logger.info("=" * 50)
+        return
+    
+    # Seed demo data if enabled
+    if settings.SEED_DEMO_DATA:
+        logger.info("SEED_DEMO_DATA is enabled, seeding demo data...")
+        try:
+            from app.seed import seed
+            seed()
+        except Exception as e:
+            logger.error(f"Failed to seed demo data: {e}")
     
     logger.info("API Docs available at: /docs")
     logger.info("=" * 50)

@@ -85,8 +85,8 @@
               </td>
               <td>{{ item.category?.name || '-' }}</td>
               <td>
-                <span :class="getSentimentClass(item.sentiment_score)">
-                  {{ formatSentiment(item.sentiment_score) }}
+                <span :class="getSentimentClass(item)">
+                  {{ getSentimentLabel(item) }}
                 </span>
               </td>
               <td>{{ formatDate(item.created_at) }}</td>
@@ -196,6 +196,9 @@
 <script setup>
 import { ref, computed, onMounted } from 'vue'
 import { adminApi, analyticsApi, categoriesApi, tagsApi, feedbackApi } from '../api/client'
+import { useToast } from '../stores/toast'
+
+const toast = useToast()
 
 const feedback = ref([])
 const stats = ref({})
@@ -226,6 +229,7 @@ async function loadFeedback() {
     total.value = response.data.total
   } catch (error) {
     console.error('Failed to load feedback:', error)
+    toast.error('Failed to load feedback')
   } finally {
     loading.value = false
   }
@@ -264,17 +268,18 @@ async function openDetailModal(item) {
     }
     responseMessage.value = ''
   } catch (error) {
-    alert('Failed to load feedback details')
+    toast.error('Failed to load feedback details')
   }
 }
 
 async function updateStatus() {
   try {
     await adminApi.updateStatus(selectedFeedback.value.id, updateForm.value.status)
+    toast.success('Status updated successfully')
     loadFeedback()
     loadStats()
   } catch (error) {
-    alert('Failed to update status')
+    toast.error('Failed to update status')
   }
 }
 
@@ -282,18 +287,20 @@ async function updateCategory() {
   if (!updateForm.value.category_id) return
   try {
     await adminApi.updateCategory(selectedFeedback.value.id, updateForm.value.category_id)
+    toast.success('Category updated')
     loadFeedback()
   } catch (error) {
-    alert('Failed to update category')
+    toast.error('Failed to update category')
   }
 }
 
 async function updateTags() {
   try {
     await adminApi.updateTags(selectedFeedback.value.id, updateForm.value.tag_ids)
+    toast.success('Tags updated')
     loadFeedback()
   } catch (error) {
-    alert('Failed to update tags')
+    toast.error('Failed to update tags')
   }
 }
 
@@ -301,10 +308,11 @@ async function sendResponse() {
   if (!responseMessage.value.trim()) return
   try {
     await adminApi.respond(selectedFeedback.value.id, responseMessage.value)
+    toast.success('Response sent')
     responseMessage.value = ''
     openDetailModal(selectedFeedback.value)
   } catch (error) {
-    alert('Failed to send response')
+    toast.error('Failed to send response')
   }
 }
 
@@ -326,18 +334,23 @@ function formatHours(hours) {
   return `${(hours / 24).toFixed(1)}d`
 }
 
-function formatSentiment(score) {
+function getSentimentLabel(item) {
+  if (item.sentiment_label) {
+    return item.sentiment_label.charAt(0).toUpperCase() + item.sentiment_label.slice(1)
+  }
+  const score = item.sentiment_score
   if (score === null || score === undefined) return '-'
-  if (score >= 0.3) return 'Positive'
-  if (score <= -0.3) return 'Negative'
+  if (score >= 0.2) return 'Positive'
+  if (score <= -0.2) return 'Negative'
   return 'Neutral'
 }
 
-function getSentimentClass(score) {
-  if (score === null || score === undefined) return ''
-  if (score >= 0.3) return 'text-success'
-  if (score <= -0.3) return 'text-danger'
-  return 'text-secondary'
+function getSentimentClass(item) {
+  const label = getSentimentLabel(item).toLowerCase()
+  if (label === 'positive') return 'badge-sentiment badge-sentiment-positive'
+  if (label === 'negative') return 'badge-sentiment badge-sentiment-negative'
+  if (label === 'neutral') return 'badge-sentiment badge-sentiment-neutral'
+  return ''
 }
 
 onMounted(() => {

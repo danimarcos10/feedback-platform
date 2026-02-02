@@ -1,5 +1,6 @@
 <template>
   <div id="app">
+    <ToastContainer />
     <nav class="navbar" v-if="authStore.isAuthenticated">
       <div class="container navbar-content">
         <router-link to="/" class="navbar-brand">Feedback Platform</router-link>
@@ -25,6 +26,7 @@
 <script setup>
 import { useAuthStore } from './stores/auth'
 import { useRouter } from 'vue-router'
+import ToastContainer from './components/ToastContainer.vue'
 
 const authStore = useAuthStore()
 const router = useRouter()

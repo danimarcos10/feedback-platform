@@ -7,37 +7,31 @@
       </div>
 
       <div class="submit-card card">
-        <div v-if="success" class="alert alert-success">
-          Feedback submitted successfully! 
-          <router-link to="/dashboard">View your feedback</router-link>
-        </div>
-
-        <div v-if="error" class="alert alert-error">
-          {{ error }}
-        </div>
-
         <form @submit.prevent="submitFeedback">
           <div class="form-group">
             <label class="form-label">Title *</label>
             <input
               v-model="form.title"
               type="text"
-              class="form-input"
+              :class="['form-input', { 'is-invalid': errors.title }]"
               placeholder="Brief summary of your feedback"
-              required
               maxlength="255"
+              @blur="validateTitle"
             />
+            <span v-if="errors.title" class="form-error">{{ errors.title }}</span>
           </div>
 
           <div class="form-group">
             <label class="form-label">Description *</label>
             <textarea
               v-model="form.content"
-              class="form-textarea"
+              :class="['form-textarea', { 'is-invalid': errors.content }]"
               placeholder="Provide detailed information about your feedback..."
-              required
               rows="6"
+              @blur="validateContent"
             ></textarea>
+            <span v-if="errors.content" class="form-error">{{ errors.content }}</span>
+            <span v-else class="form-hint">{{ form.content.length }}/10 minimum characters</span>
           </div>
 
           <div class="form-group">
@@ -62,13 +56,14 @@
                 <span class="tag-label">{{ tag.name }}</span>
               </label>
             </div>
+            <p v-if="tags.length === 0" class="form-hint">No tags available yet.</p>
           </div>
 
           <div class="form-actions">
             <router-link to="/dashboard" class="btn btn-outline">
               Cancel
             </router-link>
-            <button type="submit" class="btn btn-primary" :disabled="loading">
+            <button type="submit" class="btn btn-primary" :disabled="loading || !isValid">
               {{ loading ? 'Submitting...' : 'Submit Feedback' }}
             </button>
           </div>
@@ -79,8 +74,13 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue'
+import { ref, computed, onMounted } from 'vue'
+import { useRouter } from 'vue-router'
 import { feedbackApi, categoriesApi, tagsApi } from '../api/client'
+import { useToast } from '../stores/toast'
+
+const router = useRouter()
+const toast = useToast()
 
 const form = ref({
   title: '',
@@ -89,11 +89,41 @@ const form = ref({
   tag_ids: []
 })
 
+const errors = ref({
+  title: '',
+  content: ''
+})
+
 const categories = ref([])
 const tags = ref([])
 const loading = ref(false)
-const error = ref('')
-const success = ref(false)
+
+const isValid = computed(() => {
+  return form.value.title.trim().length >= 3 && 
+         form.value.content.trim().length >= 10 &&
+         !errors.value.title &&
+         !errors.value.content
+})
+
+function validateTitle() {
+  if (!form.value.title.trim()) {
+    errors.value.title = 'Title is required'
+  } else if (form.value.title.trim().length < 3) {
+    errors.value.title = 'Title must be at least 3 characters'
+  } else {
+    errors.value.title = ''
+  }
+}
+
+function validateContent() {
+  if (!form.value.content.trim()) {
+    errors.value.content = 'Description is required'
+  } else if (form.value.content.trim().length < 10) {
+    errors.value.content = 'Description must be at least 10 characters'
+  } else {
+    errors.value.content = ''
+  }
+}
 
 async function loadOptions() {
   try {
@@ -109,16 +139,28 @@ async function loadOptions() {
 }
 
 async function submitFeedback() {
-  error.value = ''
-  success.value = false
+  // Validate all fields
+  validateTitle()
+  validateContent()
+  
+  if (!isValid.value) {
+    toast.error('Please fix the validation errors')
+    return
+  }
+  
   loading.value = true
 
   try {
     await feedbackApi.create(form.value)
-    success.value = true
+    toast.success('Feedback submitted successfully!')
     form.value = { title: '', content: '', category_id: null, tag_ids: [] }
+    errors.value = { title: '', content: '' }
+    // Navigate to dashboard after short delay
+    setTimeout(() => {
+      router.push('/dashboard')
+    }, 1500)
   } catch (err) {
-    error.value = err.response?.data?.detail || 'Failed to submit feedback. Please try again.'
+    toast.error(err.response?.data?.detail || 'Failed to submit feedback. Please try again.')
   } finally {
     loading.value = false
   }
@@ -161,5 +203,11 @@ onMounted(loadOptions)
   margin-top: 1.5rem;
   padding-top: 1.5rem;
   border-top: 1px solid var(--border-color);
+}
+
+.form-hint {
+  font-size: 0.75rem;
+  color: var(--text-secondary);
+  margin-top: 0.25rem;
 }
 </style>

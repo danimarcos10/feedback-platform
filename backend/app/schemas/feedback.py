@@ -28,6 +28,7 @@ class FeedbackResponse(FeedbackBase):
     category_id: int | None
     status: FeedbackStatus
     sentiment_score: float | None
+    sentiment_label: str | None = None
     created_at: datetime
     updated_at: datetime
     resolved_at: datetime | None

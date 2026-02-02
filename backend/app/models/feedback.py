@@ -13,6 +13,12 @@ class FeedbackStatus(str, enum.Enum):
     REJECTED = "rejected"
 
 
+class SentimentLabel(str, enum.Enum):
+    NEGATIVE = "negative"
+    NEUTRAL = "neutral"
+    POSITIVE = "positive"
+
+
 class Feedback(Base):
     __tablename__ = "feedback"
 
@@ -29,6 +35,7 @@ class Feedback(Base):
         index=True
     )
     sentiment_score = Column(Float, nullable=True)
+    sentiment_label = Column(String(20), nullable=True, index=True)  # negative, neutral, positive
     created_at = Column(DateTime(timezone=True), server_default=func.now())
     updated_at = Column(DateTime(timezone=True), server_default=func.now(), onupdate=func.now())
     resolved_at = Column(DateTime(timezone=True), nullable=True)

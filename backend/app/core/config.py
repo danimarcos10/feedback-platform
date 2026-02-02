@@ -18,6 +18,13 @@ class Settings(BaseSettings):
     # CORS
     CORS_ORIGINS: list[str] = ["http://localhost:5173", "http://localhost:3000"]
     
+    # Demo/Seed Data
+    ADMIN_EMAIL: str = "admin@demo.com"
+    ADMIN_PASSWORD: str = "admin1234"
+    DEMO_USER_EMAIL: str = "user@demo.com"
+    DEMO_USER_PASSWORD: str = "user1234"
+    SEED_DEMO_DATA: bool = False
+    
     class Config:
         env_file = ".env"
         case_sensitive = True
