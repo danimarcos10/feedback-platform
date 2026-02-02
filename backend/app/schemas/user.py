@@ -1,0 +1,29 @@
+from pydantic import BaseModel, EmailStr
+from datetime import datetime
+from app.models.user import UserRole
+
+
+class UserBase(BaseModel):
+    email: EmailStr
+
+
+class UserCreate(UserBase):
+    password: str
+
+
+class UserUpdate(BaseModel):
+    email: EmailStr | None = None
+    password: str | None = None
+
+
+class UserResponse(UserBase):
+    id: int
+    role: UserRole
+    created_at: datetime
+
+    class Config:
+        from_attributes = True
+
+
+class UserInDB(UserResponse):
+    hashed_password: str
