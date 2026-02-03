@@ -83,19 +83,26 @@ class TestAdminAuditTrail:
         assert update_response.status_code == 200
         assert update_response.json()["status"] == "in_progress"
         
-        # Query status_events table directly - should have exactly 1 entry
+        # Query status_events table directly
+        # Should have 2 entries: initial creation (None -> new) + admin update (new -> in_progress)
         status_events = db.query(StatusEvent).filter(
             StatusEvent.feedback_id == feedback_id
-        ).all()
+        ).order_by(StatusEvent.id).all()
         
-        assert len(status_events) == 1, (
-            f"Expected exactly 1 status event, found {len(status_events)}"
+        assert len(status_events) == 2, (
+            f"Expected 2 status events (creation + update), found {len(status_events)}: {status_events}"
         )
         
-        event = status_events[0]
-        assert event.old_status == "new", f"Expected old_status='new', got '{event.old_status}'"
-        assert event.new_status == "in_progress", f"Expected new_status='in_progress', got '{event.new_status}'"
-        assert event.changed_by is not None, "changed_by should be set to admin user ID"
+        # First event: feedback creation (None -> new)
+        creation_event = status_events[0]
+        assert creation_event.old_status is None, f"Expected old_status=None for creation, got '{creation_event.old_status}'"
+        assert creation_event.new_status == "new", f"Expected new_status='new' for creation, got '{creation_event.new_status}'"
+        
+        # Second event: admin status update (new -> in_progress)
+        update_event = status_events[1]
+        assert update_event.old_status == "new", f"Expected old_status='new', got '{update_event.old_status}'"
+        assert update_event.new_status == "in_progress", f"Expected new_status='in_progress', got '{update_event.new_status}'"
+        assert update_event.changed_by is not None, "changed_by should be set to admin user ID"
 
 
 class TestSentimentAnalysis:
