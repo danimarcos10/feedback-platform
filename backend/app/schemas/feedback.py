@@ -1,10 +1,8 @@
 from pydantic import BaseModel
 from datetime import datetime
-from typing import Optional
 from app.models.feedback import FeedbackStatus
 from .category import CategoryResponse
 from .tag import TagResponse
-from .user import UserResponse
 
 
 class FeedbackBase(BaseModel):

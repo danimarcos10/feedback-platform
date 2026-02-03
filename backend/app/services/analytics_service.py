@@ -1,8 +1,6 @@
 from sqlalchemy.orm import Session
-from sqlalchemy import func, and_, case
-from datetime import datetime, timedelta, date
-from typing import Optional
-import numpy as np
+from sqlalchemy import func
+from datetime import datetime, timedelta
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.cluster import KMeans
 

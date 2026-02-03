@@ -1,8 +1,6 @@
 from sqlalchemy.orm import Session, joinedload
-from sqlalchemy import and_
 from fastapi import HTTPException, status
 from datetime import datetime
-from typing import Optional
 from vaderSentiment.vaderSentiment import SentimentIntensityAnalyzer
 
 from app.models.feedback import Feedback, FeedbackStatus
@@ -10,13 +8,11 @@ from app.models.tag import Tag
 from app.models.category import Category
 from app.models.status_event import StatusEvent
 from app.models.admin_response import AdminResponse
-from app.models.user import User, UserRole
 from app.schemas.feedback import (
     FeedbackCreate,
     FeedbackUpdate,
     FeedbackResponse,
     FeedbackListResponse,
-    StatusUpdateRequest,
     AdminResponseCreate,
 )
 

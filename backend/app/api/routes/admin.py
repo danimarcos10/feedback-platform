@@ -5,7 +5,6 @@ from app.api.deps import DBSession, CurrentAdmin
 from app.schemas.feedback import (
     FeedbackListResponse,
     FeedbackResponse,
-    FeedbackDetailResponse,
     StatusUpdateRequest,
     CategoryUpdateRequest,
     TagsUpdateRequest,
