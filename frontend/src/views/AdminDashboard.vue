@@ -1,28 +1,66 @@
 <template>
   <div class="page">
     <div class="container">
-      <div class="page-header">
-        <h1 class="page-title">Admin Dashboard</h1>
-        <p class="page-subtitle">Manage all feedback submissions</p>
+      <div class="page-header-row">
+        <div class="page-header">
+          <h1 class="page-title">Admin Dashboard</h1>
+          <p class="page-subtitle">Manage all feedback submissions</p>
+        </div>
+        <router-link to="/admin/analytics" class="btn btn-primary">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18">
+            <line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/>
+          </svg>
+          View Analytics
+        </router-link>
       </div>
 
       <!-- Quick Stats -->
-      <div class="grid grid-4 mb-6">
-        <div class="stat-card card">
-          <div class="stat-value">{{ stats.total_feedback || 0 }}</div>
-          <div class="stat-label">Total Feedback</div>
+      <div class="stats-grid">
+        <div class="stat-card">
+          <div class="stat-icon stat-icon-primary">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
+            </svg>
+          </div>
+          <div class="stat-content">
+            <div class="stat-value">{{ stats.total_feedback || 0 }}</div>
+            <div class="stat-label">Total Feedback</div>
+          </div>
         </div>
-        <div class="stat-card card">
-          <div class="stat-value">{{ stats.open_feedback || 0 }}</div>
-          <div class="stat-label">Open</div>
+        <div class="stat-card">
+          <div class="stat-icon stat-icon-warning">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/>
+            </svg>
+          </div>
+          <div class="stat-content">
+            <div class="stat-value">{{ stats.open_feedback || 0 }}</div>
+            <div class="stat-label">Open Items</div>
+          </div>
         </div>
-        <div class="stat-card card">
-          <div class="stat-value">{{ stats.resolved_feedback || 0 }}</div>
-          <div class="stat-label">Resolved</div>
+        <div class="stat-card">
+          <div class="stat-icon stat-icon-success">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/>
+              <polyline points="22 4 12 14.01 9 11.01"/>
+            </svg>
+          </div>
+          <div class="stat-content">
+            <div class="stat-value">{{ stats.resolved_feedback || 0 }}</div>
+            <div class="stat-label">Resolved</div>
+          </div>
         </div>
-        <div class="stat-card card">
-          <div class="stat-value">{{ formatHours(stats.average_resolution_time_hours) }}</div>
-          <div class="stat-label">Avg Resolution Time</div>
+        <div class="stat-card">
+          <div class="stat-icon stat-icon-info">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/>
+              <polyline points="17 6 23 6 23 12"/>
+            </svg>
+          </div>
+          <div class="stat-content">
+            <div class="stat-value">{{ formatHours(stats.average_resolution_time_hours) }}</div>
+            <div class="stat-label">Avg Resolution</div>
+          </div>
         </div>
       </div>
 
@@ -361,43 +399,169 @@ onMounted(() => {
 </script>
 
 <style scoped>
+.page-header-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 1rem;
+  margin-bottom: 2rem;
+}
+
+/* Stats Grid */
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 1.25rem;
+  margin-bottom: 2rem;
+}
+
+@media (max-width: 1024px) {
+  .stats-grid { grid-template-columns: repeat(2, 1fr); }
+}
+
+@media (max-width: 640px) {
+  .stats-grid { grid-template-columns: 1fr; }
+  .page-header-row { flex-direction: column; }
+}
+
 .stat-card {
-  text-align: center;
+  background: white;
+  border-radius: 16px;
   padding: 1.5rem;
+  display: flex;
+  align-items: flex-start;
+  gap: 1rem;
+  border: 1px solid var(--gray-100);
+  transition: all 0.2s ease;
+  position: relative;
+  overflow: hidden;
+}
+
+.stat-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background: var(--accent-gradient);
+  opacity: 0;
+  transition: opacity 0.2s;
+}
+
+.stat-card:hover {
+  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1);
+  transform: translateY(-2px);
+}
+
+.stat-card:hover::before {
+  opacity: 1;
+}
+
+.stat-icon {
+  width: 48px;
+  height: 48px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.stat-icon svg {
+  width: 24px;
+  height: 24px;
+}
+
+.stat-icon-primary {
+  background: linear-gradient(135deg, #eef2ff, #e0e7ff);
+  color: #6366f1;
+}
+
+.stat-icon-success {
+  background: linear-gradient(135deg, #ecfdf5, #d1fae5);
+  color: #10b981;
+}
+
+.stat-icon-warning {
+  background: linear-gradient(135deg, #fffbeb, #fef3c7);
+  color: #f59e0b;
+}
+
+.stat-icon-info {
+  background: linear-gradient(135deg, #eff6ff, #dbeafe);
+  color: #3b82f6;
+}
+
+.stat-content {
+  flex: 1;
 }
 
 .stat-value {
-  font-size: 2rem;
-  font-weight: 700;
-  color: var(--primary-color);
+  font-size: 1.75rem;
+  font-weight: 800;
+  color: var(--gray-900);
+  line-height: 1;
+  letter-spacing: -0.025em;
 }
 
 .stat-label {
-  font-size: 0.875rem;
-  color: var(--text-secondary);
-  margin-top: 0.25rem;
+  font-size: 0.8125rem;
+  color: var(--gray-500);
+  margin-top: 0.375rem;
+  font-weight: 500;
 }
 
+/* Filters */
 .filters {
-  padding: 1rem 1.5rem;
+  padding: 1.25rem 1.5rem;
+  border-radius: 16px;
+}
+
+/* Table improvements */
+.table-card {
+  border-radius: 16px;
+  overflow: hidden;
+}
+
+.feedback-title-cell strong {
+  color: var(--gray-900);
+  font-weight: 600;
+}
+
+.feedback-excerpt {
+  color: var(--gray-500);
+  font-size: 0.8125rem;
+  margin-top: 0.25rem;
+  line-height: 1.4;
 }
 
 .btn-sm {
-  padding: 0.375rem 0.75rem;
-  font-size: 0.75rem;
+  padding: 0.5rem 1rem;
+  font-size: 0.8125rem;
 }
 
+/* Pagination */
 .pagination {
   display: flex;
   align-items: center;
   justify-content: center;
   gap: 1rem;
+  margin-top: 2rem;
 }
 
+.page-info {
+  font-size: 0.875rem;
+  color: var(--gray-500);
+  font-weight: 500;
+}
+
+/* Modal */
 .modal-overlay {
   position: fixed;
   inset: 0;
-  background: rgba(0, 0, 0, 0.5);
+  background: rgba(0, 0, 0, 0.6);
+  backdrop-filter: blur(4px);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -410,6 +574,19 @@ onMounted(() => {
   max-width: 600px;
   max-height: 90vh;
   overflow-y: auto;
+  border-radius: 20px;
+  animation: modalSlide 0.2s ease;
+}
+
+@keyframes modalSlide {
+  from {
+    opacity: 0;
+    transform: translateY(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 .modal-lg {
@@ -422,15 +599,33 @@ onMounted(() => {
   align-items: center;
   margin-bottom: 1.5rem;
   padding-bottom: 1rem;
-  border-bottom: 1px solid var(--border-color);
+  border-bottom: 1px solid var(--gray-100);
+}
+
+.modal-header h2 {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: var(--gray-900);
 }
 
 .btn-close {
-  background: none;
+  width: 36px;
+  height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--gray-100);
   border: none;
-  font-size: 1.5rem;
+  border-radius: 10px;
+  font-size: 1.25rem;
   cursor: pointer;
-  color: var(--text-secondary);
+  color: var(--gray-500);
+  transition: all 0.2s;
+}
+
+.btn-close:hover {
+  background: var(--gray-200);
+  color: var(--gray-700);
 }
 
 .detail-section {
@@ -438,33 +633,95 @@ onMounted(() => {
 }
 
 .detail-section h4 {
-  font-size: 0.875rem;
+  font-size: 0.8125rem;
   font-weight: 600;
-  margin-bottom: 0.5rem;
-  color: var(--text-secondary);
+  margin-bottom: 0.625rem;
+  color: var(--gray-500);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.detail-section p {
+  color: var(--gray-700);
+  line-height: 1.7;
 }
 
 .tags-select {
   display: flex;
   flex-wrap: wrap;
-  gap: 0.75rem;
+  gap: 0.5rem;
 }
 
 .tag-checkbox {
   display: flex;
   align-items: center;
   gap: 0.5rem;
+  padding: 0.5rem 0.75rem;
+  background: var(--gray-50);
+  border-radius: 8px;
   cursor: pointer;
+  transition: all 0.2s;
+  border: 2px solid transparent;
+}
+
+.tag-checkbox:hover {
+  background: var(--gray-100);
+}
+
+.tag-checkbox:has(input:checked) {
+  background: var(--primary-50);
+  border-color: var(--primary-200);
+}
+
+.tag-checkbox input {
+  accent-color: var(--primary-500);
 }
 
 .tag-label {
-  font-size: 0.875rem;
+  font-size: 0.8125rem;
+  font-weight: 500;
+  color: var(--gray-700);
 }
 
 .response-item {
-  background: var(--background-color);
-  padding: 1rem;
-  border-radius: 0.5rem;
+  background: var(--gray-50);
+  padding: 1rem 1.25rem;
+  border-radius: 12px;
+  margin-bottom: 0.75rem;
+  border-left: 3px solid var(--primary-400);
+}
+
+.response-item p {
+  color: var(--gray-700);
   margin-bottom: 0.5rem;
+}
+
+.response-item small {
+  color: var(--gray-500);
+  font-size: 0.75rem;
+}
+
+/* Empty state */
+.empty-state-card {
+  padding: 4rem 2rem;
+  text-align: center;
+  border-radius: 16px;
+}
+
+.empty-icon {
+  width: 64px;
+  height: 64px;
+  margin: 0 auto 1rem;
+  background: var(--gray-100);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--gray-400);
+}
+
+.empty-icon svg {
+  width: 32px;
+  height: 32px;
 }
 </style>

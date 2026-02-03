@@ -2,11 +2,27 @@
   <div class="page">
     <div class="container">
       <div class="page-header">
+        <router-link to="/dashboard" class="back-link">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="20" height="20">
+            <line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/>
+          </svg>
+          Back to Dashboard
+        </router-link>
         <h1 class="page-title">Submit Feedback</h1>
-        <p class="page-subtitle">Share your thoughts, ideas, or report issues</p>
+        <p class="page-subtitle">Share your thoughts, ideas, or report issues with our team</p>
       </div>
 
       <div class="submit-card card">
+        <div class="form-header">
+          <div class="form-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
+              <line x1="9" y1="10" x2="15" y2="10"/>
+              <line x1="9" y1="14" x2="12" y2="14"/>
+            </svg>
+          </div>
+          <h2 class="form-title">New Feedback</h2>
+        </div>
         <form @submit.prevent="submitFeedback">
           <div class="form-group">
             <label class="form-label">Title *</label>
@@ -170,44 +186,109 @@ onMounted(loadOptions)
 </script>
 
 <style scoped>
+.back-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.375rem;
+  color: var(--gray-500);
+  text-decoration: none;
+  font-size: 0.875rem;
+  font-weight: 500;
+  margin-bottom: 0.75rem;
+  transition: color 0.2s;
+}
+
+.back-link:hover {
+  color: var(--primary-500);
+}
+
 .submit-card {
   max-width: 700px;
+  border-radius: 20px;
+  padding: 2rem;
+}
+
+.form-header {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 2rem;
+  padding-bottom: 1.5rem;
+  border-bottom: 1px solid var(--gray-100);
+}
+
+.form-icon {
+  width: 56px;
+  height: 56px;
+  background: linear-gradient(135deg, #667eea, #764ba2);
+  border-radius: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  box-shadow: 0 4px 14px rgba(102, 126, 234, 0.3);
+}
+
+.form-icon svg {
+  width: 28px;
+  height: 28px;
+}
+
+.form-title {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: var(--gray-900);
 }
 
 .tags-select {
   display: flex;
   flex-wrap: wrap;
-  gap: 0.75rem;
+  gap: 0.5rem;
 }
 
 .tag-checkbox {
   display: flex;
   align-items: center;
   gap: 0.5rem;
+  padding: 0.5rem 0.875rem;
+  background: var(--gray-50);
+  border-radius: 8px;
   cursor: pointer;
+  transition: all 0.2s;
+  border: 2px solid transparent;
+}
+
+.tag-checkbox:hover {
+  background: var(--gray-100);
+}
+
+.tag-checkbox:has(input:checked) {
+  background: var(--primary-50);
+  border-color: var(--primary-200);
 }
 
 .tag-checkbox input {
-  width: 1rem;
-  height: 1rem;
+  accent-color: var(--primary-500);
 }
 
 .tag-label {
-  font-size: 0.875rem;
+  font-size: 0.8125rem;
+  font-weight: 500;
+  color: var(--gray-700);
 }
 
 .form-actions {
   display: flex;
   gap: 1rem;
   justify-content: flex-end;
-  margin-top: 1.5rem;
+  margin-top: 2rem;
   padding-top: 1.5rem;
-  border-top: 1px solid var(--border-color);
+  border-top: 1px solid var(--gray-100);
 }
 
 .form-hint {
-  font-size: 0.75rem;
-  color: var(--text-secondary);
-  margin-top: 0.25rem;
+  color: var(--gray-500);
+  font-size: 0.8125rem;
+  margin-top: 0.375rem;
 }
 </style>

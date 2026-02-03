@@ -1,13 +1,16 @@
 <template>
   <div class="page">
     <div class="container">
-      <div class="page-header flex justify-between items-center">
-        <div>
+      <div class="page-header-row">
+        <div class="page-header">
           <h1 class="page-title">My Feedback</h1>
           <p class="page-subtitle">View and manage your submitted feedback</p>
         </div>
         <router-link to="/submit" class="btn btn-primary">
-          + New Feedback
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18">
+            <line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>
+          </svg>
+          New Feedback
         </router-link>
       </div>
 
@@ -43,10 +46,18 @@
       />
 
       <!-- Empty State -->
-      <div v-else class="card text-center" style="padding: 3rem;">
-        <h3>No feedback found</h3>
-        <p class="text-secondary mt-2">You haven't submitted any feedback yet.</p>
-        <router-link to="/submit" class="btn btn-primary mt-4">
+      <div v-else class="empty-state-card card">
+        <div class="empty-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
+          </svg>
+        </div>
+        <h3 class="empty-title">No feedback yet</h3>
+        <p class="empty-description">Start by sharing your thoughts, ideas, or reporting issues.</p>
+        <router-link to="/submit" class="btn btn-primary">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18">
+            <line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>
+          </svg>
           Submit Your First Feedback
         </router-link>
       </div>
@@ -179,8 +190,23 @@ onMounted(loadFeedback)
 </script>
 
 <style scoped>
+.page-header-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 1rem;
+  margin-bottom: 2rem;
+}
+
+@media (max-width: 640px) {
+  .page-header-row {
+    flex-direction: column;
+  }
+}
+
 .filters {
-  padding: 1rem 1.5rem;
+  padding: 1.25rem 1.5rem;
+  border-radius: 16px;
 }
 
 .pagination {
@@ -188,21 +214,65 @@ onMounted(loadFeedback)
   align-items: center;
   justify-content: center;
   gap: 1rem;
+  margin-top: 2rem;
 }
 
 .page-info {
   font-size: 0.875rem;
-  color: var(--text-secondary);
+  color: var(--gray-500);
+  font-weight: 500;
 }
 
+/* Empty State */
+.empty-state-card {
+  padding: 4rem 2rem;
+  text-align: center;
+  border-radius: 16px;
+}
+
+.empty-icon {
+  width: 80px;
+  height: 80px;
+  margin: 0 auto 1.25rem;
+  background: linear-gradient(135deg, #eef2ff, #e0e7ff);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #6366f1;
+}
+
+.empty-icon svg {
+  width: 40px;
+  height: 40px;
+}
+
+.empty-title {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: var(--gray-900);
+  margin-bottom: 0.5rem;
+}
+
+.empty-description {
+  color: var(--gray-500);
+  margin-bottom: 1.5rem;
+  max-width: 300px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+/* Modal */
 .modal-overlay {
   position: fixed;
   inset: 0;
-  background: rgba(0, 0, 0, 0.5);
+  background: rgba(0, 0, 0, 0.6);
+  backdrop-filter: blur(4px);
   display: flex;
   align-items: center;
   justify-content: center;
   z-index: 1000;
+  padding: 1rem;
 }
 
 .modal {
@@ -210,5 +280,18 @@ onMounted(loadFeedback)
   max-width: 500px;
   max-height: 90vh;
   overflow-y: auto;
+  border-radius: 20px;
+  animation: modalSlide 0.2s ease;
+}
+
+@keyframes modalSlide {
+  from {
+    opacity: 0;
+    transform: translateY(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 </style>
