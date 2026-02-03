@@ -8,6 +8,52 @@ A full-stack feedback management system with sentiment analysis and analytics, b
 ![PostgreSQL](https://img.shields.io/badge/PostgreSQL-16-336791?logo=postgresql)
 ![Docker](https://img.shields.io/badge/Docker-Compose-2496ED?logo=docker)
 
+---
+
+## 2-Minute Demo
+
+Try the full workflow in under 2 minutes:
+
+### 1. Start the App
+```bash
+docker-compose up -d
+```
+Open http://localhost
+
+### 2. Submit Feedback as User
+1. Click **"Try Demo: User"** to login as `user@demo.com`
+2. Click **"New Feedback"** button
+3. Enter:
+   - **Title:** `UI is terrible`
+   - **Content:** `The interface is confusing and frustrating to use`
+4. Click **Submit**
+5. Notice the **sentiment badge shows "Negative"** (red) - AI detected the tone
+
+### 3. Manage as Admin
+1. **Logout** (top right)
+2. Click **"Try Demo: Admin"** to login as `admin@demo.com`
+3. Find the new feedback in the list
+4. Click **"View Details"**
+5. Change status from `New` → `In Progress`
+6. Add a response: `Thanks for the feedback! We're working on improving the UI.`
+7. Click **Send Response**
+
+### 4. View Analytics
+1. Click **"View Analytics"** button
+2. Observe:
+   - **Total feedback count** increased
+   - **Sentiment chart** shows the negative feedback
+   - **Topic clustering** groups similar feedback themes
+   - **Hover over charts** for detailed tooltips
+
+### Demo Accounts
+| Role | Email | Password |
+|------|-------|----------|
+| Admin | `admin@demo.com` | `admin1234` |
+| User | `user@demo.com` | `user1234` |
+
+---
+
 ## Overview
 
 A production-ready feedback platform where users can submit feedback and administrators can manage, categorize, and analyze it. Features AI-powered sentiment analysis and topic clustering.
