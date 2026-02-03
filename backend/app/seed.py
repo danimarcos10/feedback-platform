@@ -170,12 +170,17 @@ def create_sample_feedback(
     categories: list[Category],
     tags: list[Tag]
 ) -> None:
-    """Create sample feedback items if none exist."""
-    existing_count = db.query(Feedback).count()
+    """Create sample feedback items if demo data doesn't exist."""
+    # Check if demo feedback already exists by looking for a specific title
+    demo_marker = db.query(Feedback).filter(
+        Feedback.title == "Terrible UI experience"
+    ).first()
     
-    if existing_count > 0:
-        logger.info(f"Feedback already exists ({existing_count} items), skipping seed")
+    if demo_marker:
+        logger.info("Demo feedback already exists, skipping seed")
         return
+    
+    logger.info("Creating sample feedback items...")
     
     # Use the FeedbackService to properly calculate sentiment
     feedback_service = FeedbackService(db)

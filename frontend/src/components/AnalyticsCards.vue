@@ -74,6 +74,34 @@ function formatResolutionTime(hours) {
   align-items: center;
   gap: 1rem;
   padding: 1.25rem;
+  cursor: default;
+  position: relative;
+  overflow: hidden;
+}
+
+.stat-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  opacity: 0;
+  transition: opacity 0.2s ease;
+}
+
+.stat-card:nth-child(1)::before { background: linear-gradient(90deg, #3b82f6, #60a5fa); }
+.stat-card:nth-child(2)::before { background: linear-gradient(90deg, #f59e0b, #fbbf24); }
+.stat-card:nth-child(3)::before { background: linear-gradient(90deg, #22c55e, #4ade80); }
+.stat-card:nth-child(4)::before { background: linear-gradient(90deg, #8b5cf6, #a78bfa); }
+
+.stat-card:hover::before {
+  opacity: 1;
+}
+
+.stat-card:hover {
+  transform: translateY(-3px);
+  box-shadow: var(--shadow-md);
 }
 
 .stat-icon {
@@ -84,25 +112,30 @@ function formatResolutionTime(hours) {
   align-items: center;
   justify-content: center;
   flex-shrink: 0;
+  transition: all 0.2s ease;
+}
+
+.stat-card:hover .stat-icon {
+  transform: scale(1.1) rotate(-5deg);
 }
 
 .stat-icon-blue {
-  background: rgba(59, 130, 246, 0.1);
+  background: linear-gradient(135deg, rgba(59, 130, 246, 0.15), rgba(59, 130, 246, 0.05));
   color: #3b82f6;
 }
 
 .stat-icon-yellow {
-  background: rgba(245, 158, 11, 0.1);
+  background: linear-gradient(135deg, rgba(245, 158, 11, 0.15), rgba(245, 158, 11, 0.05));
   color: #f59e0b;
 }
 
 .stat-icon-green {
-  background: rgba(34, 197, 94, 0.1);
+  background: linear-gradient(135deg, rgba(34, 197, 94, 0.15), rgba(34, 197, 94, 0.05));
   color: #22c55e;
 }
 
 .stat-icon-purple {
-  background: rgba(139, 92, 246, 0.1);
+  background: linear-gradient(135deg, rgba(139, 92, 246, 0.15), rgba(139, 92, 246, 0.05));
   color: #8b5cf6;
 }
 
@@ -115,11 +148,26 @@ function formatResolutionTime(hours) {
   font-weight: 700;
   color: var(--text-primary);
   line-height: 1.2;
+  transition: all 0.2s ease;
 }
+
+.stat-card:hover .stat-value {
+  transform: scale(1.02);
+}
+
+.stat-card:nth-child(1):hover .stat-value { color: #3b82f6; }
+.stat-card:nth-child(2):hover .stat-value { color: #f59e0b; }
+.stat-card:nth-child(3):hover .stat-value { color: #22c55e; }
+.stat-card:nth-child(4):hover .stat-value { color: #8b5cf6; }
 
 .stat-label {
   font-size: 0.875rem;
   color: var(--text-secondary);
   margin-top: 0.25rem;
+  transition: color 0.2s ease;
+}
+
+.stat-card:hover .stat-label {
+  color: var(--gray-600);
 }
 </style>

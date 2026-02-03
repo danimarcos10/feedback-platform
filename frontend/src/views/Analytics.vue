@@ -132,22 +132,109 @@ const topics = ref([])
 const chartOptions = {
   responsive: true,
   maintainAspectRatio: false,
+  interaction: {
+    mode: 'index',
+    intersect: false,
+  },
   plugins: {
-    legend: { display: false }
+    legend: { display: false },
+    tooltip: {
+      enabled: true,
+      backgroundColor: 'rgba(17, 24, 39, 0.95)',
+      titleColor: '#fff',
+      bodyColor: '#e5e7eb',
+      titleFont: { size: 13, weight: '600' },
+      bodyFont: { size: 12 },
+      padding: 12,
+      cornerRadius: 8,
+      displayColors: false,
+      callbacks: {
+        title: (items) => items[0]?.label || '',
+        label: (item) => `${item.parsed.y} feedback items`
+      }
+    }
   },
   scales: {
-    y: { beginAtZero: true }
+    y: { 
+      beginAtZero: true,
+      grid: { color: 'rgba(0,0,0,0.05)' },
+      ticks: { color: '#6b7280', font: { size: 11 } }
+    },
+    x: {
+      grid: { display: false },
+      ticks: { color: '#6b7280', font: { size: 11 } }
+    }
+  },
+  elements: {
+    point: {
+      radius: 0,
+      hoverRadius: 6,
+      hoverBackgroundColor: '#3b82f6',
+      hoverBorderColor: '#fff',
+      hoverBorderWidth: 2
+    },
+    line: {
+      borderWidth: 2.5
+    }
   }
 }
 
 const sentimentChartOptions = {
   responsive: true,
   maintainAspectRatio: false,
+  interaction: {
+    mode: 'index',
+    intersect: false,
+  },
   plugins: {
-    legend: { display: false }
+    legend: { display: false },
+    tooltip: {
+      enabled: true,
+      backgroundColor: 'rgba(17, 24, 39, 0.95)',
+      titleColor: '#fff',
+      bodyColor: '#e5e7eb',
+      titleFont: { size: 13, weight: '600' },
+      bodyFont: { size: 12 },
+      padding: 12,
+      cornerRadius: 8,
+      displayColors: false,
+      callbacks: {
+        title: (items) => items[0]?.label || '',
+        label: (item) => {
+          const val = item.parsed.y.toFixed(2)
+          const sentiment = val >= 0.2 ? '😊 Positive' : val <= -0.2 ? '😞 Negative' : '😐 Neutral'
+          return `Score: ${val} (${sentiment})`
+        }
+      }
+    }
   },
   scales: {
-    y: { min: -1, max: 1 }
+    y: { 
+      min: -1, 
+      max: 1,
+      grid: { color: 'rgba(0,0,0,0.05)' },
+      ticks: { 
+        color: '#6b7280', 
+        font: { size: 11 },
+        callback: (val) => val === 0 ? '0' : val > 0 ? `+${val}` : val
+      }
+    },
+    x: {
+      grid: { display: false },
+      ticks: { color: '#6b7280', font: { size: 11 } }
+    }
+  },
+  elements: {
+    point: {
+      radius: 0,
+      hoverRadius: 6,
+      hoverBackgroundColor: '#22c55e',
+      hoverBorderColor: '#fff',
+      hoverBorderWidth: 2
+    },
+    line: {
+      borderWidth: 2.5
+    }
   }
 }
 
@@ -218,42 +305,64 @@ onMounted(loadAnalytics)
   font-size: 1rem;
   font-weight: 600;
   margin-bottom: 1rem;
+  color: var(--gray-800);
 }
 
 .chart-container {
   height: 250px;
+  position: relative;
 }
 
+/* Stats List with hover effects */
 .stats-list {
   display: flex;
   flex-direction: column;
-  gap: 0.75rem;
+  gap: 0.5rem;
 }
 
 .stats-item {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 0.5rem 0;
-  border-bottom: 1px solid var(--border-color);
+  padding: 0.75rem 1rem;
+  border-radius: var(--radius-md);
+  background: transparent;
+  transition: all var(--transition);
+  cursor: default;
 }
 
-.stats-item:last-child {
-  border-bottom: none;
+.stats-item:hover {
+  background: var(--gray-50);
+  transform: translateX(4px);
 }
 
 .stats-name {
   font-weight: 500;
+  color: var(--gray-700);
+  transition: color var(--transition);
+}
+
+.stats-item:hover .stats-name {
+  color: var(--primary-600);
 }
 
 .stats-value {
-  background: var(--background-color);
-  padding: 0.25rem 0.75rem;
+  background: var(--gray-100);
+  padding: 0.375rem 0.875rem;
   border-radius: 9999px;
   font-size: 0.875rem;
   font-weight: 600;
+  color: var(--gray-700);
+  transition: all var(--transition);
 }
 
+.stats-item:hover .stats-value {
+  background: var(--primary-100);
+  color: var(--primary-700);
+  transform: scale(1.05);
+}
+
+/* Topics Grid with enhanced cards */
 .topics-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
@@ -261,9 +370,19 @@ onMounted(loadAnalytics)
 }
 
 .topic-card {
-  background: var(--background-color);
-  border-radius: 0.5rem;
-  padding: 1rem;
+  background: var(--gray-50);
+  border-radius: var(--radius-md);
+  padding: 1.25rem;
+  border: 1px solid transparent;
+  transition: all var(--transition);
+  cursor: default;
+}
+
+.topic-card:hover {
+  background: white;
+  border-color: var(--primary-200);
+  box-shadow: var(--shadow-sm);
+  transform: translateY(-2px);
 }
 
 .topic-header {
@@ -273,35 +392,84 @@ onMounted(loadAnalytics)
 .topic-count {
   font-size: 0.875rem;
   font-weight: 600;
-  color: var(--primary-color);
+  color: var(--primary-600);
+  display: inline-flex;
+  align-items: center;
+  gap: 0.375rem;
+}
+
+.topic-count::before {
+  content: '';
+  width: 8px;
+  height: 8px;
+  background: var(--primary-500);
+  border-radius: 50%;
+  opacity: 0.7;
 }
 
 .topic-keywords {
   display: flex;
   flex-wrap: wrap;
   gap: 0.5rem;
-  margin-bottom: 0.75rem;
+  margin-bottom: 1rem;
 }
 
 .keyword-badge {
-  background: var(--primary-color);
+  background: linear-gradient(135deg, var(--primary-500), var(--primary-600));
   color: white;
-  padding: 0.25rem 0.5rem;
-  border-radius: 0.25rem;
+  padding: 0.375rem 0.625rem;
+  border-radius: var(--radius);
   font-size: 0.75rem;
+  font-weight: 500;
+  transition: all var(--transition);
+}
+
+.keyword-badge:hover {
+  transform: translateY(-2px) scale(1.02);
+  box-shadow: 0 4px 12px rgba(99, 102, 241, 0.3);
 }
 
 .topic-examples {
-  font-size: 0.875rem;
+  font-size: 0.8125rem;
+}
+
+.topic-examples strong {
+  color: var(--gray-600);
+  font-weight: 600;
 }
 
 .topic-examples ul {
-  margin-top: 0.25rem;
+  margin-top: 0.5rem;
   padding-left: 1.25rem;
+  list-style: none;
 }
 
 .topic-examples li {
-  color: var(--text-secondary);
-  margin-bottom: 0.25rem;
+  color: var(--gray-500);
+  margin-bottom: 0.375rem;
+  position: relative;
+  padding-left: 0.75rem;
+  transition: all var(--transition);
+}
+
+.topic-examples li::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0.5em;
+  width: 4px;
+  height: 4px;
+  background: var(--gray-400);
+  border-radius: 50%;
+  transition: all var(--transition);
+}
+
+.topic-card:hover .topic-examples li {
+  color: var(--gray-700);
+  transform: translateX(2px);
+}
+
+.topic-card:hover .topic-examples li::before {
+  background: var(--primary-500);
 }
 </style>

@@ -200,6 +200,12 @@ function canEdit(item) {
   font-weight: 600;
   border-radius: 20px;
   text-transform: capitalize;
+  transition: all 0.2s ease;
+}
+
+.status-badge:hover {
+  transform: scale(1.05);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.12);
 }
 
 .status-dot {
@@ -253,6 +259,12 @@ function canEdit(item) {
   font-size: 0.75rem;
   font-weight: 600;
   border-radius: 20px;
+  transition: all 0.2s ease;
+}
+
+.sentiment-badge:hover {
+  transform: scale(1.05);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.12);
 }
 
 .sentiment-positive {
@@ -328,6 +340,13 @@ function canEdit(item) {
   border-radius: 4px;
   font-size: 0.75rem;
   font-weight: 500;
+  transition: all 0.2s ease;
+}
+
+.tag-chip:hover {
+  background: var(--primary-100);
+  color: var(--primary-700);
+  transform: translateY(-1px);
 }
 
 .feedback-actions {
@@ -364,6 +383,8 @@ function canEdit(item) {
 .action-edit:hover {
   background: var(--primary-50);
   color: var(--primary-600);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(99, 102, 241, 0.2);
 }
 
 .action-delete {
@@ -374,5 +395,33 @@ function canEdit(item) {
 .action-delete:hover {
   background: #fee2e2;
   color: #dc2626;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(239, 68, 68, 0.2);
+}
+
+/* Subtle hover state for the title */
+.feedback-title {
+  transition: color 0.2s ease;
+}
+
+.feedback-card:hover .feedback-title {
+  color: var(--primary-700);
+}
+
+/* Meta items hover */
+.meta-item {
+  transition: all 0.2s ease;
+  padding: 0.25rem 0.5rem;
+  margin: -0.25rem -0.5rem;
+  border-radius: 6px;
+}
+
+.meta-item:hover {
+  background: var(--gray-50);
+  color: var(--gray-700);
+}
+
+.meta-item:hover .meta-icon {
+  color: var(--primary-500);
 }
 </style>

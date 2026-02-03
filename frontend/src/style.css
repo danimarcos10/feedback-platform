@@ -912,3 +912,252 @@ h3 { font-size: 1.25rem; }
   color: var(--gray-500);
   font-weight: 500;
 }
+
+/* ============================================
+   SUBTLE HOVER ANIMATIONS
+   ============================================ */
+
+/* Links with underline animation */
+a:not(.btn):not(.nav-link):not(.navbar-brand) {
+  position: relative;
+  color: var(--primary-600);
+  text-decoration: none;
+  transition: color var(--transition);
+}
+
+a:not(.btn):not(.nav-link):not(.navbar-brand)::after {
+  content: '';
+  position: absolute;
+  bottom: -2px;
+  left: 0;
+  width: 0;
+  height: 1.5px;
+  background: var(--primary-500);
+  transition: width var(--transition);
+}
+
+a:not(.btn):not(.nav-link):not(.navbar-brand):hover {
+  color: var(--primary-700);
+}
+
+a:not(.btn):not(.nav-link):not(.navbar-brand):hover::after {
+  width: 100%;
+}
+
+/* Badge hover lift */
+.badge {
+  transition: all var(--transition);
+}
+
+.badge:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+/* Card interactive states */
+.card {
+  position: relative;
+}
+
+.card::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background: var(--accent-gradient);
+  border-radius: var(--radius-lg) var(--radius-lg) 0 0;
+  opacity: 0;
+  transition: opacity var(--transition);
+}
+
+.card:hover::after {
+  opacity: 1;
+}
+
+/* Table row hover with gradient indicator */
+.table tbody tr {
+  position: relative;
+}
+
+.table tbody tr::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 3px;
+  background: var(--accent-gradient);
+  opacity: 0;
+  transition: opacity var(--transition);
+}
+
+.table tbody tr:hover::before {
+  opacity: 1;
+}
+
+.table tbody tr:hover td:first-child {
+  padding-left: calc(1rem + 3px);
+}
+
+/* Form input focus glow */
+.form-input:focus,
+.form-textarea:focus,
+.form-select:focus {
+  animation: inputFocusPulse 0.3s ease;
+}
+
+@keyframes inputFocusPulse {
+  0% { box-shadow: 0 0 0 0 rgba(99, 102, 241, 0.4); }
+  70% { box-shadow: 0 0 0 6px rgba(99, 102, 241, 0); }
+  100% { box-shadow: 0 0 0 4px var(--primary-50); }
+}
+
+/* Navbar link hover indicator */
+.nav-link {
+  position: relative;
+  overflow: hidden;
+}
+
+.nav-link::before {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 50%;
+  width: 0;
+  height: 2px;
+  background: var(--accent-gradient);
+  transition: all var(--transition);
+  transform: translateX(-50%);
+}
+
+.nav-link:hover::before,
+.nav-link.router-link-active::before {
+  width: 60%;
+}
+
+/* Button ripple effect on click */
+.btn {
+  position: relative;
+  overflow: hidden;
+}
+
+.btn::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 0;
+  height: 0;
+  background: rgba(255, 255, 255, 0.3);
+  border-radius: 50%;
+  transform: translate(-50%, -50%);
+  transition: width 0.4s ease, height 0.4s ease;
+}
+
+.btn:active::after {
+  width: 200px;
+  height: 200px;
+}
+
+/* Smooth image/icon scaling */
+svg, img {
+  transition: transform var(--transition);
+}
+
+.btn:hover svg,
+.stat-card:hover .stat-icon svg {
+  transform: scale(1.1);
+}
+
+/* Alert subtle entrance */
+.alert {
+  animation: alertSlideIn 0.3s ease;
+}
+
+@keyframes alertSlideIn {
+  from {
+    opacity: 0;
+    transform: translateY(-8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Stat value counter feel */
+.stat-value {
+  transition: transform var(--transition), color var(--transition);
+}
+
+.stat-card:hover .stat-value {
+  transform: scale(1.02);
+  color: var(--primary-600);
+}
+
+/* Tag/chip hover effects */
+.tag-checkbox {
+  transition: all var(--transition);
+}
+
+.tag-checkbox:hover {
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-sm);
+}
+
+/* Focus visible for accessibility */
+*:focus-visible {
+  outline: 2px solid var(--primary-500);
+  outline-offset: 2px;
+}
+
+button:focus-visible,
+.btn:focus-visible {
+  outline-offset: 3px;
+}
+
+/* Subtle pulse for interactive elements */
+@keyframes subtlePulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.8; }
+}
+
+.spinner {
+  animation: spin 0.8s linear infinite, subtlePulse 2s ease-in-out infinite;
+}
+
+/* Modal content stagger animation */
+.modal .form-group {
+  animation: staggerFadeIn 0.3s ease backwards;
+}
+
+.modal .form-group:nth-child(1) { animation-delay: 0.05s; }
+.modal .form-group:nth-child(2) { animation-delay: 0.1s; }
+.modal .form-group:nth-child(3) { animation-delay: 0.15s; }
+.modal .form-group:nth-child(4) { animation-delay: 0.2s; }
+
+@keyframes staggerFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Page title subtle gradient on hover */
+.page-title {
+  transition: all var(--transition);
+  display: inline-block;
+}
+
+.page-title:hover {
+  background: var(--accent-gradient);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
