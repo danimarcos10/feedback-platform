@@ -1,10 +1,34 @@
 <template>
-  <div class="page">
+  <div class="page page-with-bg">
     <div class="container">
-      <div class="page-header-row">
-        <div class="page-header">
-          <h1 class="page-title">My Feedback</h1>
-          <p class="page-subtitle">View and manage your submitted feedback</p>
+      <div class="page-header">
+        <h1 class="page-title">My Feedback</h1>
+        <p class="page-subtitle">View and manage your submitted feedback</p>
+      </div>
+
+      <!-- Command Bar -->
+      <div class="command-bar">
+        <div class="command-bar-left">
+          <div class="search-input-wrapper">
+            <svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
+            </svg>
+            <input 
+              v-model="searchQuery" 
+              type="text" 
+              class="search-input" 
+              placeholder="Search feedback..."
+              @input="debouncedSearch"
+            />
+          </div>
+          <select v-model="statusFilter" class="filter-select" @change="loadFeedback">
+            <option value="">All Status</option>
+            <option value="new">New</option>
+            <option value="triaged">Triaged</option>
+            <option value="in_progress">In Progress</option>
+            <option value="resolved">Resolved</option>
+            <option value="rejected">Rejected</option>
+          </select>
         </div>
         <router-link to="/submit" class="btn btn-primary">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18">
@@ -14,23 +38,6 @@
         </router-link>
       </div>
 
-      <!-- Filters -->
-      <div class="filters card mb-6">
-        <div class="flex gap-4 items-center">
-          <div class="form-group" style="margin-bottom: 0; flex: 1;">
-            <label class="form-label">Filter by Status</label>
-            <select v-model="statusFilter" class="form-select" @change="loadFeedback">
-              <option value="">All Status</option>
-              <option value="new">New</option>
-              <option value="triaged">Triaged</option>
-              <option value="in_progress">In Progress</option>
-              <option value="resolved">Resolved</option>
-              <option value="rejected">Rejected</option>
-            </select>
-          </div>
-        </div>
-      </div>
-
       <!-- Loading -->
       <div v-if="loading" class="loading-container">
         <div class="spinner"></div>
@@ -38,12 +45,26 @@
 
       <!-- Feedback List -->
       <FeedbackList
-        v-else-if="feedback.length > 0"
-        :feedback="feedback"
+        v-else-if="filteredFeedback.length > 0"
+        :feedback="filteredFeedback"
         :show-actions="true"
         @edit="openEditModal"
         @delete="deleteFeedback"
       />
+
+      <!-- No Search Results -->
+      <div v-else-if="filteredFeedback.length === 0 && feedback.length > 0" class="empty-state-card card">
+        <div class="empty-icon empty-icon-search">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
+          </svg>
+        </div>
+        <h3 class="empty-title">No results found</h3>
+        <p class="empty-description">Try adjusting your search or filters to find what you're looking for.</p>
+        <button class="btn btn-outline" @click="searchQuery = ''; statusFilter = ''; loadFeedback()">
+          Clear Filters
+        </button>
+      </div>
 
       <!-- Empty State -->
       <div v-else class="empty-state-card card">
@@ -123,11 +144,30 @@ const page = ref(1)
 const pageSize = 10
 const total = ref(0)
 const statusFilter = ref('')
+const searchQuery = ref('')
+let searchTimeout = null
 
 const editingFeedback = ref(null)
 const editForm = ref({ title: '', content: '' })
 
 const totalPages = computed(() => Math.ceil(total.value / pageSize))
+
+// Filter feedback locally based on search query
+const filteredFeedback = computed(() => {
+  if (!searchQuery.value.trim()) return feedback.value
+  const query = searchQuery.value.toLowerCase()
+  return feedback.value.filter(item => 
+    item.title.toLowerCase().includes(query) ||
+    item.content.toLowerCase().includes(query)
+  )
+})
+
+function debouncedSearch() {
+  clearTimeout(searchTimeout)
+  searchTimeout = setTimeout(() => {
+    // Local filtering, no API call needed
+  }, 300)
+}
 
 async function loadFeedback() {
   loading.value = true
@@ -190,23 +230,101 @@ onMounted(loadFeedback)
 </script>
 
 <style scoped>
-.page-header-row {
+/* Command Bar */
+.command-bar {
   display: flex;
+  align-items: center;
   justify-content: space-between;
-  align-items: flex-start;
   gap: 1rem;
-  margin-bottom: 2rem;
+  background: white;
+  padding: 1rem 1.25rem;
+  border-radius: 16px;
+  margin-bottom: 1.5rem;
+  border: 1px solid var(--gray-100);
+  box-shadow: var(--shadow-sm);
 }
 
-@media (max-width: 640px) {
-  .page-header-row {
+.command-bar-left {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  flex: 1;
+}
+
+.search-input-wrapper {
+  position: relative;
+  flex: 1;
+  max-width: 320px;
+}
+
+.search-icon {
+  position: absolute;
+  left: 0.875rem;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 18px;
+  height: 18px;
+  color: var(--gray-400);
+  pointer-events: none;
+}
+
+.search-input {
+  width: 100%;
+  padding: 0.625rem 1rem 0.625rem 2.5rem;
+  font-size: 0.875rem;
+  border: 2px solid var(--gray-200);
+  border-radius: 10px;
+  background: var(--gray-50);
+  transition: all 0.2s;
+}
+
+.search-input:focus {
+  outline: none;
+  border-color: var(--primary-500);
+  background: white;
+  box-shadow: 0 0 0 4px var(--primary-50);
+}
+
+.search-input::placeholder {
+  color: var(--gray-400);
+}
+
+.filter-select {
+  padding: 0.625rem 2rem 0.625rem 0.875rem;
+  font-size: 0.875rem;
+  border: 2px solid var(--gray-200);
+  border-radius: 10px;
+  background: var(--gray-50);
+  cursor: pointer;
+  transition: all 0.2s;
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%239ca3af' stroke-width='2'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 0.75rem center;
+}
+
+.filter-select:focus {
+  outline: none;
+  border-color: var(--primary-500);
+  background-color: white;
+}
+
+@media (max-width: 768px) {
+  .command-bar {
     flex-direction: column;
+    align-items: stretch;
+  }
+  .command-bar-left {
+    flex-direction: column;
+  }
+  .search-input-wrapper {
+    max-width: 100%;
   }
 }
 
-.filters {
-  padding: 1.25rem 1.5rem;
-  border-radius: 16px;
+.empty-icon-search {
+  background: linear-gradient(135deg, #fef3c7, #fde68a) !important;
+  color: #f59e0b !important;
 }
 
 .pagination {

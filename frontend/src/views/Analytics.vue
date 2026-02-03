@@ -1,5 +1,5 @@
 <template>
-  <div class="page">
+  <div class="page page-with-bg">
     <div class="container">
       <div class="page-header">
         <h1 class="page-title">Analytics Dashboard</h1>
