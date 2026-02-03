@@ -33,7 +33,12 @@ if DATABASE_URL and DATABASE_URL.startswith("postgresql"):
     # Postgres in CI - use NullPool for test isolation
     engine = create_engine(DATABASE_URL, poolclass=NullPool)
     TestingSessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
-    print(f"[Tests] Using Postgres: {DATABASE_URL.split('@')[1] if '@' in DATABASE_URL else DATABASE_URL}")
+    # Mask password in log output
+    safe_url = DATABASE_URL.split('@')[1] if '@' in DATABASE_URL else DATABASE_URL
+    print(f"\n{'='*60}")
+    print(f"[Tests] DATABASE: PostgreSQL")
+    print(f"[Tests] HOST: {safe_url}")
+    print(f"{'='*60}\n")
 else:
     # SQLite for local development
     SQLALCHEMY_DATABASE_URL = "sqlite:///:memory:"
@@ -43,7 +48,10 @@ else:
         poolclass=StaticPool,
     )
     TestingSessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
-    print("[Tests] Using SQLite in-memory database")
+    print(f"\n{'='*60}")
+    print(f"[Tests] DATABASE: SQLite (in-memory)")
+    print(f"[Tests] Note: Set DATABASE_URL env var to use Postgres")
+    print(f"{'='*60}\n")
 
 
 def override_get_db():
