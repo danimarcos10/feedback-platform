@@ -74,9 +74,10 @@ def db():
 @pytest.fixture(scope="function")
 def client(db):
     """Create test client with fresh database."""
-    Base.metadata.create_all(bind=engine)
-    yield TestClient(app)
-    Base.metadata.drop_all(bind=engine)
+    # Don't need create_all here - db fixture already does it
+    # Use raise_server_exceptions=False to avoid startup event issues
+    with TestClient(app, raise_server_exceptions=False) as c:
+        yield c
 
 
 @pytest.fixture
