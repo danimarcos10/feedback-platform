@@ -29,13 +29,16 @@ app = FastAPI(
     redoc_url="/redoc",
 )
 
-# Global exception handler for better error reporting
+# Global exception handler - logs details but doesn't leak them to client
 @app.exception_handler(Exception)
 async def global_exception_handler(request: Request, exc: Exception):
+    # Log full details for debugging (server-side only)
     logger.error(f"Unhandled error on {request.method} {request.url}: {exc}", exc_info=True)
+    
+    # Return generic message to client (don't leak internal details)
     return JSONResponse(
         status_code=500,
-        content={"detail": f"Internal server error: {str(exc)}"}
+        content={"detail": "Internal server error. Please try again later."}
     )
 
 # CORS middleware
@@ -113,14 +116,20 @@ def health_check():
         return {"status": "healthy", "database": "connected"}
     except Exception as e:
         logger.error(f"Health check failed: {e}")
-        return {"status": "unhealthy", "database": "disconnected", "error": str(e)}
+        # Don't leak internal error details
+        return {"status": "unhealthy", "database": "disconnected"}
 
 
 @app.get("/debug")
 def debug_info():
-    """Debug endpoint to check configuration."""
+    """Debug endpoint to check configuration (only available in DEBUG mode)."""
+    from fastapi import HTTPException
     from sqlalchemy import text
     from app.db.session import SessionLocal
+    
+    # Only allow in debug mode to prevent information leakage
+    if not settings.DEBUG:
+        raise HTTPException(status_code=404, detail="Not found")
     
     db_status = "unknown"
     tables = []
@@ -135,8 +144,8 @@ def debug_info():
         tables = [row[0] for row in result.fetchall()]
         db.close()
         db_status = "connected"
-    except Exception as e:
-        db_status = f"error: {str(e)}"
+    except Exception:
+        db_status = "error"
     
     return {
         "status": "running",

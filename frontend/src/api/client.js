@@ -1,6 +1,7 @@
 import axios from 'axios'
 
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000'
+// Use /api proxy in production (through Nginx), direct URL only in dev
+const API_URL = import.meta.env.VITE_API_URL || '/api'
 
 console.log('[API Client] Connecting to backend at:', API_URL)
 
@@ -49,7 +50,7 @@ client.interceptors.response.use(
     if (error.code === 'ECONNABORTED') {
       error.userMessage = 'Request timed out. Please check if the server is running.'
     } else if (error.code === 'ERR_NETWORK' || !error.response) {
-      error.userMessage = 'Cannot connect to server. Please ensure the backend is running at ' + API_URL
+      error.userMessage = 'Cannot connect to server. Please ensure the backend is running.'
     } else if (error.response?.status === 401) {
       localStorage.removeItem('token')
       localStorage.removeItem('user')

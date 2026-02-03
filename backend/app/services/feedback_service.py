@@ -1,3 +1,4 @@
+import re
 from sqlalchemy.orm import Session, joinedload
 from fastapi import HTTPException, status
 from datetime import datetime
@@ -15,6 +16,19 @@ from app.schemas.feedback import (
     FeedbackListResponse,
     AdminResponseCreate,
 )
+
+
+def extract_words(text: str) -> set[str]:
+    """
+    Extract individual words from text for keyword matching.
+    - Lowercase
+    - Replace punctuation with spaces
+    - Split into words
+    - Return as set for O(1) membership testing
+    """
+    # Replace non-alphanumeric chars with spaces, then split
+    cleaned = re.sub(r'[^a-zA-Z0-9\s]', ' ', text.lower())
+    return set(cleaned.split())
 
 # Custom lexicon for product feedback sentiment analysis
 CUSTOM_LEXICON = {
@@ -71,12 +85,14 @@ class FeedbackService:
         Get sentiment label from score with keyword override.
         Uses improved thresholds for product feedback.
         """
-        text_lower = text.lower()
+        # Extract actual words (not substrings) for accurate matching
+        # This prevents "unbroken" from matching "broken"
+        words = extract_words(text)
         
-        # Strong keyword overrides - if text contains these, force the label
-        if any(word in text_lower for word in STRONG_NEGATIVE_KEYWORDS):
+        # Strong keyword overrides - check for exact word matches
+        if words & STRONG_NEGATIVE_KEYWORDS:  # Set intersection
             return "negative"
-        if any(word in text_lower for word in STRONG_POSITIVE_KEYWORDS):
+        if words & STRONG_POSITIVE_KEYWORDS:  # Set intersection
             return "positive"
         
         # Use improved thresholds (wider neutral band than default VADER)

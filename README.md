@@ -51,20 +51,23 @@ A production-ready feedback platform where users can submit feedback and adminis
 ## Architecture
 
 ```
-┌─────────────┐     ┌─────────────┐     ┌─────────────┐
-│   Frontend  │────▶│   Backend   │────▶│  PostgreSQL │
-│   (Vue 3)   │     │  (FastAPI)  │     │  Database   │
-│   :80       │     │   :8000     │     │   :5432     │
-└─────────────┘     └─────────────┘     └─────────────┘
-      │                   │
-      │              ┌────┴────┐
-      │              │ Analytics│
-      │              │ Engine   │
-      │              └─────────┘
-      │                   │
-      └───────────────────┘
-           REST API
+┌─────────────────────────────────────┐
+│            Nginx (:80)              │
+│  ┌─────────────┐  ┌──────────────┐  │     ┌─────────────┐
+│  │   Vue SPA   │  │  /api proxy  │──┼────▶│   Backend   │
+│  │  (static)   │  │              │  │     │  (FastAPI)  │
+│  └─────────────┘  └──────────────┘  │     │   :8000     │
+└─────────────────────────────────────┘     └──────┬──────┘
+                                                   │
+                                            ┌──────┴──────┐
+                                            │  PostgreSQL │
+                                            │    :5432    │
+                                            └─────────────┘
 ```
+
+- Frontend served as static files through Nginx
+- API calls go through `/api` reverse proxy (single origin, no CORS issues)
+- Backend handles auth, business logic, and ML analytics
 
 ## Quick Start
 
@@ -231,11 +234,17 @@ Create `.env` files based on `.env.example`:
 **Backend:**
 ```env
 DATABASE_URL=postgresql://postgres:postgres@db:5432/feedback_db
-SECRET_KEY=your-secret-key-change-in-production
 DEBUG=true
+
+# IMPORTANT: Set a secure SECRET_KEY in production!
+# Generate one with: python -c "import secrets; print(secrets.token_urlsafe(32))"
+# The default is for local development only and is NOT secure.
+SECRET_KEY=your-production-secret-key-here
 ```
 
 **Frontend:**
+
+The frontend uses Nginx reverse proxy (`/api`) in production, so no API URL configuration is needed. For development with Vite:
 ```env
 VITE_API_URL=http://localhost:8000
 ```

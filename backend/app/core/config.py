@@ -9,8 +9,10 @@ class Settings(BaseSettings):
     # Database
     DATABASE_URL: str = "postgresql://postgres:postgres@db:5432/feedback_db"
     
-    # JWT
-    SECRET_KEY: str = "your-secret-key-change-in-production"
+    # JWT Authentication
+    # IMPORTANT: Set SECRET_KEY via environment variable in production!
+    # The default is for local development only and is NOT secure.
+    SECRET_KEY: str = "dev-only-secret-change-in-production"
     ALGORITHM: str = "HS256"
     ACCESS_TOKEN_EXPIRE_MINUTES: int = 60 * 24  # 24 hours
     

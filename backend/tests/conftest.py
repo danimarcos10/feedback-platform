@@ -2,12 +2,17 @@
 Shared test fixtures and configuration.
 Run all tests with: pytest
 Run with coverage: pytest --cov=app --cov-report=html
+
+Database configuration:
+- If DATABASE_URL env var is set (e.g., in CI with Postgres), use that
+- Otherwise, fall back to in-memory SQLite for local development
 """
+import os
 import pytest
 from fastapi.testclient import TestClient
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
-from sqlalchemy.pool import StaticPool
+from sqlalchemy.pool import StaticPool, NullPool
 
 from app.main import app
 from app.db.base_class import Base
@@ -19,15 +24,26 @@ from app.models.user import User, UserRole
 from app.models import feedback, category, tag, feedback_tag, status_event, admin_response
 
 
-# Test database - in-memory SQLite
-SQLALCHEMY_DATABASE_URL = "sqlite:///:memory:"
+# Test database configuration
+# Use DATABASE_URL from environment if available (CI uses Postgres)
+# Otherwise fall back to SQLite for local development
+DATABASE_URL = os.environ.get("DATABASE_URL")
 
-engine = create_engine(
-    SQLALCHEMY_DATABASE_URL,
-    connect_args={"check_same_thread": False},
-    poolclass=StaticPool,
-)
-TestingSessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
+if DATABASE_URL and DATABASE_URL.startswith("postgresql"):
+    # Postgres in CI - use NullPool for test isolation
+    engine = create_engine(DATABASE_URL, poolclass=NullPool)
+    TestingSessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
+    print(f"[Tests] Using Postgres: {DATABASE_URL.split('@')[1] if '@' in DATABASE_URL else DATABASE_URL}")
+else:
+    # SQLite for local development
+    SQLALCHEMY_DATABASE_URL = "sqlite:///:memory:"
+    engine = create_engine(
+        SQLALCHEMY_DATABASE_URL,
+        connect_args={"check_same_thread": False},
+        poolclass=StaticPool,
+    )
+    TestingSessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
+    print("[Tests] Using SQLite in-memory database")
 
 
 def override_get_db():

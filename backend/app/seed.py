@@ -237,17 +237,21 @@ def create_sample_feedback(
 def get_sentiment_label(score: float, text: str) -> str:
     """
     Get sentiment label from score with keyword override.
-    Uses improved thresholds and keyword detection.
+    Uses improved thresholds and proper word matching.
     """
-    text_lower = text.lower()
+    import re
     
-    # Strong keyword overrides
+    # Extract individual words (not substrings) for accurate matching
+    cleaned = re.sub(r'[^a-zA-Z0-9\s]', ' ', text.lower())
+    words = set(cleaned.split())
+    
+    # Strong keyword overrides - exact word matches only
     strong_negative = {"terrible", "awful", "unusable", "hate", "broken", "worst", "horrible"}
     strong_positive = {"amazing", "love", "perfect", "excellent", "fantastic", "great", "best"}
     
-    if any(word in text_lower for word in strong_negative):
+    if words & strong_negative:  # Set intersection
         return "negative"
-    if any(word in text_lower for word in strong_positive):
+    if words & strong_positive:  # Set intersection
         return "positive"
     
     # Use improved thresholds
