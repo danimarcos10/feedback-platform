@@ -12,7 +12,7 @@ A full-stack feedback management system with sentiment analysis and analytics, b
 
 ## 2-Minute Demo
 
-Try the full workflow in under 2 minutes:
+Try out the full workflow in under 2 minutes:
 
 ### 1. Start the App
 ```bash
